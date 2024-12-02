@@ -9,7 +9,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ windows-latest, ubuntu-latest, macos-latest, macos-13 ]
+        os: [ windows-latest ]
     steps:
       - uses: actions/checkout@v3
         with:
@@ -24,7 +24,7 @@ jobs:
         shell: bash
         run: |
           cd cli
-          mvn -B -ntp -Pnative -DskipTests=true compile
+          mvn -B -ntp native:compile -DskipTests=true compile
       - name: Upload native image
         uses: actions/upload-artifact@v4
         with:
