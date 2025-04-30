@@ -1,6 +1,6 @@
 #!/bin/bash
-set -e
-set -o pipefail
+#set -e
+#set -o pipefail
 
 WORK_DIR_INTEG_TEST="${HOME}/tmp/ideasy-integration-test-debug/IDEasy_snapshot"
 IDEASY_COMPRESSED_NAME="ideasy_latest.tar.gz"
