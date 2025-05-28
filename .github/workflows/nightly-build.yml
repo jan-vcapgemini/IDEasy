@@ -9,7 +9,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ windows-latest, ubuntu-latest, macos-latest, macos-13 ]
+        os: [ ubuntu-latest ]
     steps:
       - uses: actions/checkout@v3
         with:
@@ -17,7 +17,7 @@ jobs:
       - uses: graalvm/setup-graalvm@v1
         with:
           java-version: '21.0.2'
-          distribution: 'graalvm'
+          distribution: 'graalvm-community'
           github-token: ${{ secrets.GITHUB_TOKEN }}
           native-image-job-reports: 'true'
       - name: Build native image
