@@ -111,7 +111,7 @@ public abstract class NodeBasedCommandlet extends LocalToolCommandlet {
    */
   protected ProcessResult runPackageInstall(String npmPackage) {
 
-    return runPackageManager("install", "-g", npmPackage);
+    return runPackageManager("install", "-g", npmPackage, "--prefix", this.context.getSoftwarePath().resolve("node").toAbsolutePath().toString());
   }
 
   /**
