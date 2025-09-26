@@ -12,4 +12,6 @@ fi
 
 find "${IDE_ROOT}/${TEST_PROJECT_NAME}/software/node"
 
+ide -dt ng --version
+
 assertThat "${IDE_ROOT}/${TEST_PROJECT_NAME}/software/node/${ng_location}ng" exists
