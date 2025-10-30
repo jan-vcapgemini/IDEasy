@@ -10,4 +10,6 @@ else
   corepack_location="bin/"
 fi
 
+find "${IDE_ROOT}/${TEST_PROJECT_NAME}/software/node"
+
 assertThat "${IDE_ROOT}/${TEST_PROJECT_NAME}/software/node/${corepack_location}corepack" exists

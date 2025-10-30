@@ -10,6 +10,8 @@ else
   ng_location="bin/"
 fi
 
+find "${IDE_ROOT}/${TEST_PROJECT_NAME}/software/node"
+
 ide -d ng --version
 
 assertThat "${IDE_ROOT}/${TEST_PROJECT_NAME}/software/node/${ng_location}ng" exists
