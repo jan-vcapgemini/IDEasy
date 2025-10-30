@@ -255,9 +255,9 @@ public interface FileAccess {
   /**
    * @param dir the {@link Path directory} to compress.
    * @param out the {@link OutputStream} to write the compressed data to.
-   * @param format the path, filename or extension to derive the archive format from (e.g. "tgz", "tar.gz", "zip", etc.).
+   * @param path the path or filename to derive the archive format from (e.g. "archive.tgz", "archive.tar.gz", "archive.zip", etc.).
    */
-  void compress(Path dir, OutputStream out, String format);
+  void compress(Path dir, OutputStream out, String path);
 
   /**
    * @param dir the {@link Path directory} to compress as TAR with given {@link TarCompression}.
@@ -401,6 +401,14 @@ public interface FileAccess {
    * @param logErrorAndContinue - {@code true} to only log errors and continue, {@code false} to fail with an exception on error.
    */
   void setFilePermissions(Path path, PathPermissions permissions, boolean logErrorAndContinue);
+
+  /**
+   * Gets the {@link PathPermissions} from the specified {@link Path}.
+   *
+   * @param path the {@link Path} to the file or directory.
+   * @return the {@link PathPermissions} of the specified {@link Path}.
+   */
+  PathPermissions getFilePermissions(Path path);
 
   /**
    * Like the linux touch command this method will update the modification time of the given {@link Path} to the current

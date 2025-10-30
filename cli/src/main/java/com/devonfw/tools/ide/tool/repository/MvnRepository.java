@@ -38,7 +38,7 @@ import com.devonfw.tools.ide.version.VersionIdentifier;
  * {@link com.devonfw.tools.ide.tool.mvn.Mvn maven} was the first famous build management tool with a central repository. Meanwhile, there are others like
  * {@link com.devonfw.tools.ide.tool.gradle.Gradle}. However, it is still called maven-repository and not java-repository.
  */
-public final class MvnRepository extends ArtifactToolRepository<MvnArtifact, MvnArtifactMetadata> {
+public class MvnRepository extends ArtifactToolRepository<MvnArtifact, MvnArtifactMetadata> {
 
   /** Base URL for Maven Central repository */
   public static final String MAVEN_CENTRAL = "https://repo1.maven.org/maven2";
@@ -127,14 +127,26 @@ public final class MvnRepository extends ArtifactToolRepository<MvnArtifact, Mvn
       }
       artifact = artifact.withClassifier(resolvedClassifier);
     }
-    UrlChecksums chekcsums = null;
-    if (!artifact.isMavenMetadata()) {
-      chekcsums = new UrlLazyChecksums(artifact);
-    }
-    return new MvnArtifactMetadata(artifact, tool, edition, chekcsums, os, arch);
+    UrlChecksums checksums = getChecksums(artifact);
+    return new MvnArtifactMetadata(artifact, tool, edition, checksums, os, arch);
   }
 
-  private UrlGenericChecksum getChecksum(MvnArtifact artifact, String hashAlgorithm) {
+  /**
+   * Method is required to disable checksum checks in tests.
+   *
+   * @param artifact the {@link MvnArtifact} to use.
+   * @return the {@link UrlChecksums}.
+   */
+  protected UrlChecksums getChecksums(MvnArtifact artifact) {
+
+    UrlChecksums checksums = null;
+    if (!artifact.isMavenMetadata()) {
+      checksums = new UrlLazyChecksums(artifact);
+    }
+    return checksums;
+  }
+
+  protected UrlGenericChecksum getChecksum(MvnArtifact artifact, String hashAlgorithm) {
 
     MvnArtifact checksumArtifact = artifact.withType(artifact.getType() + "." + hashAlgorithm.toLowerCase(Locale.ROOT));
     Path checksumFile = getDownloadedArtifact(checksumArtifact, null);
@@ -147,7 +159,7 @@ public final class MvnRepository extends ArtifactToolRepository<MvnArtifact, Mvn
     Path file = this.localMavenRepository.resolve(artifact.getPath());
     if (isNotUpToDateInLocalRepo(file)) {
       this.context.getFileAccess().mkdirs(file.getParent());
-      download(artifact.getDownloadUrl(), file, artifact.getVersion(), checksums);
+      download(getMavenUrl(artifact), file, artifact.getVersion(), checksums);
     }
     return file;
   }
@@ -190,7 +202,7 @@ public final class MvnRepository extends ArtifactToolRepository<MvnArtifact, Mvn
     versionString = resolvedVersion.toString();
     if (versionString.endsWith("-SNAPSHOT")) {
       artifact = artifact.withVersion(versionString);
-      return resolveSnapshotVersion(artifact.getDownloadUrl(), versionString);
+      return resolveSnapshotVersion(getMavenUrl(artifact), versionString);
     }
     return resolvedVersion;
   }
@@ -198,7 +210,8 @@ public final class MvnRepository extends ArtifactToolRepository<MvnArtifact, Mvn
   @Override
   protected List<VersionIdentifier> fetchVersions(MvnArtifact artifact) {
 
-    String metadataUrl = artifact.withMavenMetadata().getDownloadUrl();
+    String metadataUrl = getMavenUrl(artifact.withMavenMetadata());
+
     Document metadata = fetchXmlMetadata(metadataUrl);
     return fetchVersions(metadata, metadataUrl);
   }
@@ -209,7 +222,7 @@ public final class MvnRepository extends ArtifactToolRepository<MvnArtifact, Mvn
     NodeList versionsChildren = versions.getElementsByTagName("version");
     int length = versionsChildren.getLength();
     List<VersionIdentifier> versionList = new ArrayList<>(length);
-    for (int i = 0; i < length; i++) {
+    for (int i = length - 1; i >= 0; i--) {
       versionList.add(VersionIdentifier.of(versionsChildren.item(i).getTextContent()));
     }
     return versionList;
@@ -274,6 +287,16 @@ public final class MvnRepository extends ArtifactToolRepository<MvnArtifact, Mvn
     }
   }
 
+  /**
+   * Used for tests to overwrite Maven base url.
+   *
+   * @param artifact the {@link MvnArtifact} to use
+   * @return the Maven url
+   */
+  protected String getMavenUrl(MvnArtifact artifact) {
+    return artifact.getDownloadUrl();
+  }
+
   private class UrlLazyChecksums implements UrlChecksums {
 
     private final MvnArtifact artifact;
@@ -301,5 +324,4 @@ public final class MvnRepository extends ArtifactToolRepository<MvnArtifact, Mvn
       return this.checksums.iterator();
     }
   }
-
 }
